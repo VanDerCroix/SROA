@@ -34,6 +34,7 @@ const homeController = require('./controllers/home');
 const userController = require('./controllers/user');
 const apiController = require('./controllers/api');
 const contactController = require('./controllers/contact');
+const movieController = require('./controllers/movie');
 
 /**
  * API keys and Passport configuration.
@@ -54,6 +55,31 @@ mongoose.connection.on('error', (err) => {
   console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
   process.exit();
 });
+
+/*
+test insert
+*/
+const Movie = require('./models/Movie');
+const Rating = require('./models/Rating');
+// console.log('Unloading data from files ... \n');
+const confMovies = require('./config/preparation/movies');
+const confData = require('./config/loading/data');
+
+let prepm;
+let ratings;
+Promise.all([
+  confData.moviesMetaDataPromise,
+  confData.moviesKeywordsPromise,
+  confData.ratingsPromise,
+]).then(values => {
+  prepm = confMovies.prepareMovies(values[0], values[1]);
+  ratings = values[2];
+  console.log('RECOMENDATION ENGINE READY!');
+  // console.log(prepm.MOVIES_IN_LIST[301]);
+
+});
+
+
 
 /**
  * Express configuration.
@@ -135,6 +161,59 @@ app.post('/account/profile', passportConfig.isAuthenticated, userController.post
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
+
+app.get('/movies/:page', movieController.getMovies);
+app.get('/movies/title/:movieId', movieController.getMovieDetail);
+app.post('/movies/title/rate/:movieId', passportConfig.isAuthenticated, movieController.postRateMovie);
+app.get('/myratings', passportConfig.isAuthenticated, movieController.getMoviesRated);
+
+// import prepareRatings from './config/preparation/ratings';
+// import predictWithLinearRegression from './config/strategies/linearRegression';
+// import { addUserRating, sliceAndDice } from './config/loading/utility';
+const confRatings = require('./config/preparation/ratings');
+const strat = require('./config/strategies/linearRegression');
+const utility = require('./config/loading/utility');
+
+app.get('/recommendations', passportConfig.isAuthenticated, (req, res) => {
+  let ME_USER_ID = req.user.id;
+  let subtitle = "";
+  let recom = [];
+  Rating.find({
+    userId: ME_USER_ID
+  }, (err, myRatings) => {
+    if (err) { return next(err); }
+    if (myRatings.length < 10) {
+      // NEED MORE RATINGS
+      subtitle = "YOU NEED TO RATE AT LEAST 10 MOVIES";
+    } else {
+      // GENERATE RECS
+      subtitle = "RECOMMENDED MOVIES:";
+      let ME_USER_RATINGS = [];
+      ME_USER_RATINGS = myRatings.map((item) => {
+        return {
+          userId: ME_USER_ID,
+          rating: item.rating.toString(),
+          movieId: item.movieId,
+          title: ''
+        };
+      });
+      const {
+        ratingsGroupedByUser,
+        ratingsGroupedByMovie,
+      } = confRatings.prepareRatings([ ...ME_USER_RATINGS, ...ratings ]);
+
+      const linearRegressionBasedRecommendation = strat.predictWithLinearRegression(prepm.X, prepm.MOVIES_IN_LIST, ratingsGroupedByUser[ME_USER_ID]);
+
+      recom = utility.sliceAndDice(linearRegressionBasedRecommendation, prepm.MOVIES_BY_ID, 20, false);
+      // console.log(recom);
+    }
+    res.render('movies/recommendation', {
+      title: 'Recommendation',
+      subtitle: subtitle,
+      recommendation: recom
+    });
+  });
+});
 
 /**
  * API examples routes.

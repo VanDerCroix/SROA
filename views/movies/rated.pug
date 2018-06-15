@@ -1,0 +1,18 @@
+extends ../layout
+
+block content
+  h1 MOVIES RATED
+  hr
+  .row
+    if movies.length > 0
+      for movie in movies
+        -var release = new Date(movie.release);
+        .col-md-3(style="padding: 15px;")
+          a(href='/movies/title/'+movie.movieId)
+            img(src='https://image.tmdb.org/t/p/w185/'+movie.poster_path )
+            p
+              | #{movie.title} (#{release.getFullYear()})
+              br
+              | MY RATING: #{movie.rating}
+    else
+      h3 You haven't rate any movies yet.

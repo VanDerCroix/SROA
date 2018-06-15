@@ -1,0 +1,42 @@
+extends ../layout
+
+block content
+  -var release = new Date(movie.release);
+  h1 #{movie.title} (#{release.getFullYear()})
+  p.lead
+    for genre in movie.genres
+      span.badge.badge-secondary(style="margin: 5px;") #{genre}
+  hr
+  .row
+    .col-md-4
+      img(src='https://image.tmdb.org/t/p/w342/'+movie.poster_path)
+    .col-md-8
+      -var bmoney = parseInt(movie.budget).toLocaleString('en-US', { style: 'currency', currency: 'USD'});
+      -var rmoney = parseInt(movie.revenue).toLocaleString('en-US', { style: 'currency', currency: 'USD'});
+      -var rtime = parseInt(movie.runtime/60) + "H " + parseInt(movie.runtime%60) + "m";
+      label.col-md-3.text-right title: 
+      label.col-md-9.col-form-label.font-weight-bold #{movie.title}
+      label.col-md-3.text-right language: 
+      label.col-md-9.col-form-label.font-weight-bold #{movie.language}
+      label.col-md-3.text-right release: 
+      label.col-md-9.col-form-label.font-weight-bold #{movie.release}
+      label.col-md-3.text-right runtime: 
+      label.col-md-9.col-form-label.font-weight-bold #{rtime}
+      label.col-md-3.text-right budget: 
+      label.col-md-9.col-form-label.font-weight-bold #{bmoney}
+      label.col-md-3.text-right revenue: 
+      label.col-md-9.col-form-label.font-weight-bold #{rmoney}
+      label.col-md-3.text-right adults: 
+      label.col-md-9.col-form-label.font-weight-bold #{movie.adult}
+      if logged
+        form(action='/movies/title/rate/'+movie.movieId, method='POST')
+          input(type='hidden', name='_csrf', value=_csrf)
+          .form-group.row
+            label.col-md-3.col-form-label.font-weight-bold.text-right(for='rating') My rating:
+            .col-md-3
+              -var rate = (rating == 0) ? 1 : rating;
+              input#rating.form-control(name="rating" type="number" step="1" min="1" max="5" value=rate)
+            .col-md-2.pl-2
+              button.btn.btn-primary(type='submit')
+                i.fas.fa-lock.fa-sm
+                | Save
