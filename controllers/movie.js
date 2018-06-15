@@ -38,21 +38,30 @@ exports.getMovieDetail = (req, res) => {
   Movie.findOne({movieId: movieId}, (err, mo) => {
     if (err) { return next(err); }
     if (mo) {
-      Rating.findOne({
-        movieId: movieId,
-        userId: req.user.id
-      }, (err, ra) => {
-        if (err) { return next(err); }
-        if (ra) {
-          rating = ra.rating;
-        }
+      if (islogin) {
+        Rating.findOne({
+          movieId: movieId,
+          userId: req.user.id
+        }, (err, ra) => {
+          if (err) { return next(err); }
+          if (ra) {
+            rating = ra.rating;
+          }
+          res.render('movies/detail', {
+            title: mo.title,
+            movie: mo,
+            logged: islogin,
+            rating: rating
+          });
+        });
+      } else {
         res.render('movies/detail', {
           title: mo.title,
           movie: mo,
           logged: islogin,
           rating: rating
         });
-      });
+      }
     } else {
       res.render('movies/error');
     }
