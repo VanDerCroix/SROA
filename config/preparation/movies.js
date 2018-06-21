@@ -14,11 +14,12 @@ exports.prepareMovies = function(moviesMetaData, moviesKeywords) {
   MOVIES_IN_LIST = fromArrayToMap(MOVIES_IN_LIST, 'overview');
 
   // sort by popularity, slice 1k
-  console.log('...sorting and slicing');
+  // console.log('...sorting and slicing');
   // MOVIES_IN_LIST.sort((a, b) => b.popularity - a.popularity);
-  // MOVIES_IN_LIST.sort((a, b) => new Date(b.release_date)-new Date(a.release_date));
-  MOVIES_IN_LIST.sort((a, b) => parseInt(b.vote_average) - parseInt(a.vote_average));
-  MOVIES_IN_LIST = MOVIES_IN_LIST.slice(0, 1000);
+  // MOVIES_IN_LIST.sort((a, b) => new Date(b.release)-new Date(a.release));
+  MOVIES_IN_LIST.sort((a, b) => parseInt(b.revenue) - parseInt(a.revenue));
+  
+  MOVIES_IN_LIST = MOVIES_IN_LIST.slice(0, 5000);
 
 
   // Keep a map of movies for later reference

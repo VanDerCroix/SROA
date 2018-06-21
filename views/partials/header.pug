@@ -2,20 +2,20 @@
   .container
     a.navbar-brand(href='/')
       i.fas.fa-cube
-      | Project name
+      | SROA
     button.navbar-toggler(type='button', data-toggle='collapse', data-target='.navbar-collapse')
       span.sr-only Toggle navigation
       span.navbar-toggler-icon
     .collapse.navbar-collapse
       ul.nav.navbar-nav
-        li.active.nav-item(class=(title === 'Home') ? 'active' : undefined)
+        li.nav-item(class=(title === 'All Movies') ? 'active' : undefined)
           a.nav-link(href='/') MOVIES
-        li.nav-item(class=(title === 'API Examples') ? 'active' : undefined)
+        li.nav-item(class=(title === 'My ratings') ? 'active' : undefined)
           a.nav-link(href='/myratings') MY RATINGS
-        li.nav-item(class=(title === 'Contact') ? 'active' : undefined)
+        li.nav-item(class=(title === 'Recommendation') ? 'active' : undefined)
           a.nav-link(href='/recommendations') RECOMMENDATIONS
-        li.nav-item(class=(title === 'Status') ? 'active' : undefined)
-          a.nav-link(href='/status') Status
+        li.nav-item(class=(title === 'Author') ? 'active' : undefined)
+          a.nav-link(href='/about') About
       ul.nav.navbar-nav.ml-auto
         if !user
           li.nav-item(class=(title === 'Login') ? 'active' : undefined)

@@ -18,6 +18,7 @@ const Movie = mongoose.model('Movie', movieSchema);
 module.exports = Movie;
 
 /*
+  var pelis = [];
   for (var i = 21; i <= 300; i++) {
     pelis.push({
       movieId: parseInt(prepm.MOVIES_IN_LIST[i].id),

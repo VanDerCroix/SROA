@@ -1,18 +1,15 @@
 extends ../layout
 
 block content
-  h1 MOVIES
-  p.lead Filter by genre: 
-    for genre in genres
-      a(href='/movies/category/'+genre+'/1')
-        span.badge.badge-secondary(style='margin: 5px;') #{genre}
+  h1 #{title.toUpperCase()}
+  p.lead Movies by category
   hr
   -var prev = parseInt(page) -1;
   -var next = parseInt(page) +1;
   center
-    a(href="/movies/"+prev) Prev
+    a(href="/movies/category/"+title+"/"+prev) Prev
     |  | 
-    a(href="/movies/"+next) Next
+    a(href="/movies/category/"+title+"/"+next) Next
   br
   .row
     for movie in movies
@@ -23,6 +20,6 @@ block content
           p
           | #{movie.title} (#{release.getFullYear()})
   center
-    a(href="/movies/"+prev) Prev
+    a(href="/movies/category/"+title+"/"+prev) Prev
     |  | 
-    a(href="/movies/"+next) Next
+    a(href="/movies/category/"+title+"/"+next) Next

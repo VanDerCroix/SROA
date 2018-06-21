@@ -8,20 +8,68 @@ const Rating = require('../models/Rating');
  */
 exports.getMovies = (req, res) => {
   let page = req.params.page;
+  let genres = [
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Fantasy",
+    "History",
+    "Horror",
+    "Music",
+    "Mystery",
+    "Romance",
+    "Science Fiction",
+    "Thriller",
+    "War",
+    "Western"
+  ];
   if(page > 0) {
     Movie.find({}, (err, mo) => {
       if (err) { return next(err); }
       if (mo.length > 0) {
         // console.log(mo.length);
         res.render('movies/all', {
-          title: 'Peliculas',
+          title: 'All Movies',
+          movies: mo,
+          page: page,
+          genres: genres
+        });
+      } else {
+        res.render('movies/error');
+      }
+    }).skip(20*(page-1)).limit(20);
+  } else {
+    res.render('movies/error');
+  }
+};
+
+/**
+ * GET /movies/category/:categoryName/:page
+ * Show movies.
+ */
+exports.getMoviesByCategory = (req, res) => {
+  let category = req.params.categoryName;
+  let page = req.params.page;
+  if(page > 0) {
+    Movie.find({
+      genres: { "$regex": category, "$options": "i" }
+    }, (err, mo) => {
+      if (err) { return next(err); }
+      if (mo.length > 0) {
+        // console.log(mo.length);
+        res.render('movies/category', {
+          title: category,
           movies: mo,
           page: page
         });
       } else {
         res.render('movies/error');
       }
-    }).skip(20*(page-1)).limit(20);
+    }).sort({release: -1}).skip(20*(page-1)).limit(20);
   } else {
     res.render('movies/error');
   }

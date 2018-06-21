@@ -5,7 +5,8 @@ block content
   h1 #{movie.title} (#{release.getFullYear()})
   p.lead
     for genre in movie.genres
-      span.badge.badge-secondary(style="margin: 5px;") #{genre}
+      a(href='/movies/category/'+genre+'/1')
+        span.badge.badge-secondary(style="margin: 5px;") #{genre}
   hr
   .row
     .col-md-4

@@ -67,19 +67,48 @@ const confData = require('./config/loading/data');
 
 let prepm;
 let ratings;
-Promise.all([
-  confData.moviesMetaDataPromise,
-  confData.moviesKeywordsPromise,
-  confData.ratingsPromise,
-]).then(values => {
-  prepm = confMovies.prepareMovies(values[0], values[1]);
-  ratings = values[2];
-  console.log('RECOMENDATION ENGINE READY!');
-  // console.log(prepm.MOVIES_IN_LIST[301]);
 
-});
-
-
+let configureData = function () {
+  Promise.all([
+    confData.moviesMetaDataPromise,
+    confData.moviesKeywordsPromise,
+    confData.ratingsPromise,
+  ]).then(values => {
+    prepm = confMovies.prepareMovies(values[0], values[1]);
+    ratings = values[2];
+    console.log('RECOMENDATION ENGINE READY!');
+    // last unsorted insert was from 2001 to 3000
+    // last sorted insert was from 0 to 1000
+    var pelis = [];
+    console.log(prepm.MOVIES_IN_LIST.length);
+    // prepm.MOVIES_IN_LIST.sort((a, b) => new Date(b.release)-new Date(a.release));
+    // console.log(prepm.MOVIES_IN_LIST[0]);
+    /*for (var i = 0; i <= 1000; i++) {
+        pelis.push({
+          movieId: parseInt(prepm.MOVIES_IN_LIST[i].id),
+          title: prepm.MOVIES_IN_LIST[i].title,
+          adult: prepm.MOVIES_IN_LIST[i].adult,
+          release: prepm.MOVIES_IN_LIST[i].release,
+          poster_path: prepm.MOVIES_IN_LIST[i].poster_path,
+          runtime: prepm.MOVIES_IN_LIST[i].runtime,
+          budget: prepm.MOVIES_IN_LIST[i].budget,
+          revenue: prepm.MOVIES_IN_LIST[i].revenue,
+          language: prepm.MOVIES_IN_LIST[i].language,
+          genres: prepm.MOVIES_IN_LIST[i].genres.map(function(num) {return num.name;}),
+        });
+    }
+    Movie.insertMany(pelis, function(error, docs) {
+      if(error) {
+        console.log(error);
+      }
+      if(docs) {
+        console.log(docs.length);
+        console.log('@@@@@@@@@@@@@@@@@@@@@ complete trans');
+      }
+    });*/
+  });
+}
+configureData();
 
 /**
  * Express configuration.
@@ -145,6 +174,7 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
  * Primary app routes.
  */
 app.get('/', homeController.index);
+app.get('/about', homeController.getAbout);
 app.get('/login', userController.getLogin);
 app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);
@@ -163,6 +193,7 @@ app.post('/account/delete', passportConfig.isAuthenticated, userController.postD
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 
 app.get('/movies/:page', movieController.getMovies);
+app.get('/movies/category/:categoryName/:page', movieController.getMoviesByCategory);
 app.get('/movies/title/:movieId', movieController.getMovieDetail);
 app.post('/movies/title/rate/:movieId', passportConfig.isAuthenticated, movieController.postRateMovie);
 app.get('/myratings', passportConfig.isAuthenticated, movieController.getMoviesRated);
@@ -204,7 +235,7 @@ app.get('/recommendations', passportConfig.isAuthenticated, (req, res) => {
 
       const linearRegressionBasedRecommendation = strat.predictWithLinearRegression(prepm.X, prepm.MOVIES_IN_LIST, ratingsGroupedByUser[ME_USER_ID]);
 
-      recom = utility.sliceAndDice(linearRegressionBasedRecommendation, prepm.MOVIES_BY_ID, 20, false);
+      recom = utility.sliceAndDice(linearRegressionBasedRecommendation, prepm.MOVIES_BY_ID, 12, false);
       // console.log(recom);
     }
     res.render('movies/recommendation', {

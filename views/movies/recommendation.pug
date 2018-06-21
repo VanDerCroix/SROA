@@ -1,13 +1,12 @@
 extends ../layout
 
 block content
-  h1 MOVIES
+  h1 MOVIES RECOMMENDED
   hr
   .row
     for rec in recommendation
       -var release = new Date(rec.movie.release);
       .col-md-3(style="padding: 15px;")
-        a(href='/movies/title/'+rec.movie.id)
-          img(src='https://image.tmdb.org/t/p/w185/'+rec.movie.poster_path )
-          p
-          | #{rec.movie.title} (#{release.getFullYear()})
+        img(src='https://image.tmdb.org/t/p/w185/'+rec.movie.poster_path )
+        p
+        | #{rec.movie.title} (#{release.getFullYear()})
